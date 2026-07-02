@@ -5,6 +5,7 @@ import (
 
 	"github.com/YASH-SINGH-1807/nexflow/backend/internal/handler"
 	"github.com/YASH-SINGH-1807/nexflow/backend/internal/handler/auth"
+	"github.com/YASH-SINGH-1807/nexflow/backend/internal/handler/workspace"
 	"github.com/YASH-SINGH-1807/nexflow/backend/internal/middleware"
 )
 
@@ -15,17 +16,20 @@ func RegisterRoutes(router *gin.Engine) {
 
 	api := router.Group("/api/v1")
 
+	// Public Routes
+	authRoutes := api.Group("/auth")
 	{
-		authRoutes := api.Group("/auth")
-		{
-			authRoutes.POST("/register", auth.Register)
-			authRoutes.POST("/login", auth.Login)
-		}
+		authRoutes.POST("/register", auth.Register)
+		authRoutes.POST("/login", auth.Login)
+	}
 
-		protected := api.Group("/")
-		protected.Use(middleware.AuthMiddleware())
-		{
-			protected.GET("/profile", handler.Profile)
-		}
+	// Protected Routes
+	protected := api.Group("/")
+	protected.Use(middleware.AuthMiddleware())
+	{
+		protected.GET("/profile", handler.Profile)
+
+		protected.POST("/workspaces", workspace.Create)
+		protected.GET("/workspaces", workspace.List)
 	}
 }

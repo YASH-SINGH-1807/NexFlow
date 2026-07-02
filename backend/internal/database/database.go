@@ -40,6 +40,7 @@ func Connect(cfg *config.Config) {
 
 	if err := DB.AutoMigrate(
 		&model.User{},
+		&model.Workspace{},
 	); err != nil {
 		log.Fatal(err)
 	}
