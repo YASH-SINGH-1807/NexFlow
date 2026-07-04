@@ -48,7 +48,7 @@ func main() {
 			"Content-Length",
 		},
 		AllowCredentials: true,
-		MaxAge: 12 * time.Hour,
+		MaxAge:           12 * time.Hour,
 	}))
 
 	routes.RegisterRoutes(router)

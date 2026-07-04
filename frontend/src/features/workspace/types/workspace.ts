@@ -1,7 +1,8 @@
 export interface Workspace {
-  id: string;
+  id: number;
   name: string;
   description: string;
-  createdAt: string;
-  updatedAt: string;
+  userId: number;
+  createdAt: number;
+  updatedAt: number;
 }

@@ -5,50 +5,25 @@ import {
   Routes,
 } from "react-router-dom";
 
-import DashboardPage from "@/pages/dashboard/DashboardPage";
 import LoginPage from "@/pages/auth/LoginPage";
 import RegisterPage from "@/pages/auth/RegisterPage";
 
+import DashboardPage from "@/pages/dashboard/DashboardPage";
+import WorkspacePage from "@/pages/workspace/WorkspacePage";
+import PipelinePage from "@/pages/pipeline/PipelinePage";
+import JobsPage from "@/pages/jobs/JobsPage";
+import LogsPage from "@/pages/logs/LogsPage";
+import SettingsPage from "@/pages/settings/SettingsPage";
+
 import ProtectedRoute from "@/routes/ProtectedRoute";
-
-// Temporary Pages
-function WorkspacesPage() {
-  return <h1 className="text-4xl p-10">Workspaces 🚀</h1>;
-}
-
-function PipelinesPage() {
-  return <h1 className="text-4xl p-10">Pipelines 🚀</h1>;
-}
-
-function JobsPage() {
-  return <h1 className="text-4xl p-10">Jobs 🚀</h1>;
-}
-
-function LogsPage() {
-  return <h1 className="text-4xl p-10">Logs 🚀</h1>;
-}
-
-function SettingsPage() {
-  return <h1 className="text-4xl p-10">Settings 🚀</h1>;
-}
 
 export default function AppRouter() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Public */}
+        <Route path="/login" element={<LoginPage />} />
 
-        <Route
-          path="/login"
-          element={<LoginPage />}
-        />
-
-        <Route
-          path="/register"
-          element={<RegisterPage />}
-        />
-
-        {/* Protected */}
+        <Route path="/register" element={<RegisterPage />} />
 
         <Route
           path="/"
@@ -63,7 +38,7 @@ export default function AppRouter() {
           path="/workspaces"
           element={
             <ProtectedRoute>
-              <WorkspacesPage />
+              <WorkspacePage />
             </ProtectedRoute>
           }
         />
@@ -72,7 +47,7 @@ export default function AppRouter() {
           path="/pipelines"
           element={
             <ProtectedRoute>
-              <PipelinesPage />
+              <PipelinePage />
             </ProtectedRoute>
           }
         />
@@ -104,10 +79,7 @@ export default function AppRouter() {
           }
         />
 
-        <Route
-          path="*"
-          element={<Navigate to="/" replace />}
-        />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
   );

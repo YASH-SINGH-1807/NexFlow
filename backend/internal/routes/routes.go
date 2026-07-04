@@ -10,26 +10,43 @@ import (
 )
 
 func RegisterRoutes(router *gin.Engine) {
-
 	router.GET("/", handler.Home)
 	router.GET("/health", handler.Health)
 
 	api := router.Group("/api/v1")
 
-	// Public Routes
 	authRoutes := api.Group("/auth")
 	{
 		authRoutes.POST("/register", auth.Register)
 		authRoutes.POST("/login", auth.Login)
 	}
 
-	// Protected Routes
 	protected := api.Group("/")
 	protected.Use(middleware.AuthMiddleware())
 	{
-		protected.GET("/profile", handler.Profile)
+		protected.GET(
+			"/profile",
+			handler.Profile,
+		)
 
-		protected.POST("/workspaces", workspace.Create)
-		protected.GET("/workspaces", workspace.List)
+		protected.POST(
+			"/workspaces",
+			workspace.Create,
+		)
+
+		protected.GET(
+			"/workspaces",
+			workspace.List,
+		)
+
+		protected.PUT(
+			"/workspaces/:id",
+			workspace.Update,
+		)
+
+		protected.DELETE(
+			"/workspaces/:id",
+			workspace.Delete,
+		)
 	}
 }
