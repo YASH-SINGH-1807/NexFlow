@@ -9,14 +9,20 @@ import DashboardLayout from "@/layouts/DashboardLayout";
 import DashboardStatCard from "@/components/dashboard/DashboardStatCard";
 
 import { useWorkspaces } from "@/features/workspace/hooks/useWorkspaces";
+import { usePipelines } from "@/features/pipeline/hooks/usePipelines";
 
 export default function DashboardPage() {
   const {
     data: workspaces = [],
-    isLoading,
-    isError,
-    refetch,
+    isLoading: isWorkspacesLoading,
+    isError: isWorkspacesError,
+    refetch: refetchWorkspaces,
   } = useWorkspaces();
+
+  const {
+    data: pipelines = [],
+    isLoading: isPipelinesLoading,
+  } = usePipelines();
 
   const recentWorkspaces = workspaces.slice(0, 3);
 
@@ -41,7 +47,7 @@ export default function DashboardPage() {
           <DashboardStatCard
             title="Workspaces"
             value={
-              isLoading
+              isWorkspacesLoading
                 ? "..."
                 : workspaces.length.toString()
             }
@@ -55,7 +61,11 @@ export default function DashboardPage() {
 
           <DashboardStatCard
             title="Pipelines"
-            value="0"
+            value={
+              isPipelinesLoading
+                ? "..."
+                : pipelines.length.toString()
+            }
             icon={
               <Workflow
                 size={28}
@@ -102,7 +112,7 @@ export default function DashboardPage() {
 
           {/* Loading */}
 
-          {isLoading && (
+          {isWorkspacesLoading && (
             <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
               {[1, 2, 3].map((item) => (
                 <div
@@ -115,7 +125,7 @@ export default function DashboardPage() {
 
           {/* Error */}
 
-          {isError && (
+          {isWorkspacesError && (
             <div className="mt-8 rounded-2xl border border-red-200 bg-red-50/70 p-6">
               <h3 className="font-semibold text-red-700">
                 Unable to load workspaces
@@ -127,7 +137,7 @@ export default function DashboardPage() {
 
               <button
                 type="button"
-                onClick={() => refetch()}
+                onClick={() => refetchWorkspaces()}
                 className="mt-4 cursor-pointer font-semibold text-red-700 hover:underline"
               >
                 Try Again
@@ -137,8 +147,8 @@ export default function DashboardPage() {
 
           {/* Empty State */}
 
-          {!isLoading &&
-            !isError &&
+          {!isWorkspacesLoading &&
+            !isWorkspacesError &&
             workspaces.length === 0 && (
               <div className="mt-8 flex h-56 items-center justify-center rounded-2xl border-2 border-dashed border-slate-200">
                 <div className="text-center">
@@ -152,8 +162,7 @@ export default function DashboardPage() {
                   </h3>
 
                   <p className="mt-2 text-slate-500">
-                    Create your first workspace to start
-                    building data pipelines.
+                    Create your first workspace to start building data pipelines.
                   </p>
                 </div>
               </div>
@@ -161,8 +170,8 @@ export default function DashboardPage() {
 
           {/* Recent Workspace Cards */}
 
-          {!isLoading &&
-            !isError &&
+          {!isWorkspacesLoading &&
+            !isWorkspacesError &&
             recentWorkspaces.length > 0 && (
               <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
                 {recentWorkspaces.map((workspace) => (
