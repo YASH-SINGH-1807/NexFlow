@@ -1,23 +1,29 @@
+# Environment files
 .env
-.env.local
+.env.*
+!.env.example
 
+# Compiled binaries
 *.exe
 *.dll
 *.so
 *.dylib
 
+# Go test binaries
 *.test
 
+# Coverage files
 coverage.out
 
+# Build directories
 tmp/
 dist/
 build/
 
+# Editor settings
 .vscode/
-
 .idea/
 
+# OS-generated files
 .DS_Store
-
 Thumbs.db

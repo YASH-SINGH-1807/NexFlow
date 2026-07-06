@@ -2,6 +2,7 @@ import { useState } from "react";
 
 import {
   Pencil,
+  Play,
   Plus,
   Search,
   Trash2,
@@ -22,6 +23,7 @@ import { usePipelines } from "@/features/pipeline/hooks/usePipelines";
 import { useWorkspaces } from "@/features/workspace/hooks/useWorkspaces";
 import type { Pipeline } from "@/features/pipeline/types/pipeline";
 import { useDeletePipeline } from "@/features/pipeline/hooks/useDeletePipeline";
+import { useRunPipeline } from "@/features/jobs/hooks/useRunPipeline";
 
 export default function PipelinePage() {
   const [isCreateModalOpen, setIsCreateModalOpen] =
@@ -55,6 +57,7 @@ export default function PipelinePage() {
   } = useWorkspaces();
 
   const deleteMutation = useDeletePipeline();
+  const runMutation = useRunPipeline();
 
   const workspaceNameById = new Map(
     workspaces.map((workspace) => [
@@ -103,6 +106,18 @@ export default function PipelinePage() {
     setPipelineToDelete(null);
   } catch {
     // Keep the modal open if deletion fails.
+  }
+}
+
+async function handleRunPipeline(
+  pipelineId: number
+) {
+  try {
+    await runMutation.mutateAsync(
+      pipelineId
+    );
+  } catch {
+    // The Jobs UI will handle detailed run errors later.
   }
 }
 
@@ -393,6 +408,19 @@ export default function PipelinePage() {
                         ) ?? "Unknown Workspace"}
                       </p>
                     </div>
+                    <NFButton
+  className="mt-5 w-full gap-2"
+  onClick={() =>
+    handleRunPipeline(pipeline.id)
+  }
+  disabled={runMutation.isPending}
+>
+  <Play size={17} />
+
+  {runMutation.isPending
+    ? "Queuing..."
+    : "Run Pipeline"}
+</NFButton>
                   </motion.article>
                 )
               )}

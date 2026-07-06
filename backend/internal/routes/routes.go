@@ -4,7 +4,10 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/YASH-SINGH-1807/nexflow/backend/internal/handler"
+	"github.com/YASH-SINGH-1807/nexflow/backend/internal/handler/analysis"
 	"github.com/YASH-SINGH-1807/nexflow/backend/internal/handler/auth"
+	"github.com/YASH-SINGH-1807/nexflow/backend/internal/handler/job"
+	"github.com/YASH-SINGH-1807/nexflow/backend/internal/handler/joblog"
 	"github.com/YASH-SINGH-1807/nexflow/backend/internal/handler/pipeline"
 	"github.com/YASH-SINGH-1807/nexflow/backend/internal/handler/workspace"
 	"github.com/YASH-SINGH-1807/nexflow/backend/internal/middleware"
@@ -96,6 +99,38 @@ func RegisterRoutes(router *gin.Engine) {
 		protected.GET(
 			"/workspaces/:id/pipelines",
 			pipeline.ListByWorkspace,
+		)
+
+		// Job routes
+
+		protected.POST(
+			"/pipelines/:id/run",
+			job.RunPipeline,
+		)
+
+		protected.GET(
+			"/jobs",
+			job.List,
+		)
+
+		protected.GET(
+			"/pipelines/:id/jobs",
+			job.ListByPipeline,
+		)
+
+		protected.GET(
+			"/jobs/:id/logs",
+			joblog.ListByJob,
+		)
+
+		protected.POST(
+			"/jobs/:id/analysis",
+			analysis.Analyze,
+		)
+
+		protected.GET(
+			"/jobs/:id/analysis",
+			analysis.Get,
 		)
 	}
 }

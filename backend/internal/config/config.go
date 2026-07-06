@@ -13,10 +13,15 @@ type Config struct {
 	DBSSLMode  string
 
 	JWTSecret string
+
+	AIProvider string
+
+	GroqAPIKey  string
+	GroqBaseURL string
+	GroqModel   string
 }
 
 func LoadConfig() *Config {
-
 	viper.SetConfigFile(".env")
 
 	_ = viper.ReadInConfig()
@@ -34,5 +39,11 @@ func LoadConfig() *Config {
 		DBSSLMode:  viper.GetString("DB_SSLMODE"),
 
 		JWTSecret: viper.GetString("JWT_SECRET"),
+
+		AIProvider: viper.GetString("AI_PROVIDER"),
+
+		GroqAPIKey:  viper.GetString("GROQ_API_KEY"),
+		GroqBaseURL: viper.GetString("GROQ_BASE_URL"),
+		GroqModel:   viper.GetString("GROQ_MODEL"),
 	}
 }

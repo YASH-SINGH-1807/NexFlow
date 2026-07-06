@@ -41,6 +41,9 @@ func Connect(cfg *config.Config) {
 		&model.User{},
 		&model.Workspace{},
 		&model.Pipeline{},
+		&model.Job{},
+		&model.JobLog{},
+		&model.JobAnalysis{},
 	); err != nil {
 		log.Fatal(err)
 	}

@@ -10,6 +10,7 @@ import DashboardStatCard from "@/components/dashboard/DashboardStatCard";
 
 import { useWorkspaces } from "@/features/workspace/hooks/useWorkspaces";
 import { usePipelines } from "@/features/pipeline/hooks/usePipelines";
+import { useJobs } from "@/features/jobs/hooks/useJobs";
 
 export default function DashboardPage() {
   const {
@@ -23,6 +24,11 @@ export default function DashboardPage() {
     data: pipelines = [],
     isLoading: isPipelinesLoading,
   } = usePipelines();
+
+  const {
+    data: jobs = [],
+    isLoading: isJobsLoading,
+  } = useJobs();
 
   const recentWorkspaces = workspaces.slice(0, 3);
 
@@ -75,15 +81,19 @@ export default function DashboardPage() {
           />
 
           <DashboardStatCard
-            title="Jobs"
-            value="0"
-            icon={
-              <BriefcaseBusiness
-                size={28}
-                className="text-emerald-600"
-              />
-            }
-          />
+  title="Jobs"
+  value={
+    isJobsLoading
+      ? "..."
+      : jobs.length.toString()
+  }
+  icon={
+    <BriefcaseBusiness
+      size={28}
+      className="text-emerald-600"
+    />
+  }
+/>
 
           <DashboardStatCard
             title="Storage"
