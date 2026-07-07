@@ -54,12 +54,23 @@ export default function DashboardStats() {
         xl:grid-cols-4
       "
     >
-      {stats.map((stat) => (
-        <DashboardStatCard
-          key={stat.id}
-          stat={stat}
+      {stats.map((stat) => {
+  const Icon = stat.icon;
+
+  return (
+    <DashboardStatCard
+      key={stat.id}
+      title={stat.title}
+      value={stat.value}
+      icon={
+        <Icon
+          size={28}
+          className="text-blue-600"
         />
-      ))}
+      }
+    />
+  );
+})}
     </section>
   );
 }

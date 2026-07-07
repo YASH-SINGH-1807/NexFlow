@@ -104,7 +104,7 @@ func RunPipeline(c *gin.Context) {
 	}
 
 	forceFailure :=
-	c.Query("forceFailure") == "true"
+		c.Query("forceFailure") == "true"
 
 	jobExecutor.Execute(
 		createdJob.ID,

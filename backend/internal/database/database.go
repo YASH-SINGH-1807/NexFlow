@@ -41,6 +41,8 @@ func Connect(cfg *config.Config) {
 		&model.User{},
 		&model.Workspace{},
 		&model.Pipeline{},
+		&model.PipelineNode{},
+		&model.PipelineEdge{},
 		&model.Job{},
 		&model.JobLog{},
 		&model.JobAnalysis{},

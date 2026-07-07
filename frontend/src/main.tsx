@@ -1,5 +1,7 @@
-import "@fontsource/inter";
-import "@fontsource/plus-jakarta-sans";
+import "@fontsource/inter/400.css";
+import "@fontsource/inter/700.css";
+import "@fontsource/plus-jakarta-sans/400.css";
+import "@fontsource/plus-jakarta-sans/700.css";
 
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";

@@ -9,6 +9,7 @@ import (
 	"github.com/YASH-SINGH-1807/nexflow/backend/internal/handler/job"
 	"github.com/YASH-SINGH-1807/nexflow/backend/internal/handler/joblog"
 	"github.com/YASH-SINGH-1807/nexflow/backend/internal/handler/pipeline"
+	"github.com/YASH-SINGH-1807/nexflow/backend/internal/handler/pipelinegraph"
 	"github.com/YASH-SINGH-1807/nexflow/backend/internal/handler/workspace"
 	"github.com/YASH-SINGH-1807/nexflow/backend/internal/middleware"
 )
@@ -131,6 +132,31 @@ func RegisterRoutes(router *gin.Engine) {
 		protected.GET(
 			"/jobs/:id/analysis",
 			analysis.Get,
+		)
+
+		protected.POST(
+			"/pipelines/:id/nodes",
+			pipelinegraph.CreateNode,
+		)
+
+		protected.GET(
+			"/pipelines/:id/graph",
+			pipelinegraph.GetGraph,
+		)
+
+		protected.DELETE(
+			"/pipelines/:id/nodes/:nodeId",
+			pipelinegraph.DeleteNode,
+		)
+
+		protected.POST(
+			"/pipelines/:id/edges",
+			pipelinegraph.CreateEdge,
+		)
+
+		protected.DELETE(
+			"/pipelines/:id/edges/:edgeId",
+			pipelinegraph.DeleteEdge,
 		)
 	}
 }

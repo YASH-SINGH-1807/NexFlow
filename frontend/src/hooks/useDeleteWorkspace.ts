@@ -3,7 +3,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 
-import { deleteWorkspace } from "../api/workspaceApi";
+import { deleteWorkspace } from "@/features/workspace/api/workspaceApi";
 
 export function useDeleteWorkspace() {
   const queryClient = useQueryClient();

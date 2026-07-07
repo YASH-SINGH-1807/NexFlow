@@ -1,3 +1,4 @@
+import PipelineEditor from "@/features/pipeline-editor/components/PipelineEditor";
 import { useState } from "react";
 
 import {
@@ -450,6 +451,8 @@ async function handleRunPipeline(
   }
   onConfirm={handleDeletePipeline}
 />
+    <PipelineEditor />
+
     </DashboardLayout>
   );
 }
