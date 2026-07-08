@@ -450,3 +450,88 @@ func DeleteEdge(c *gin.Context) {
 		nil,
 	)
 }
+
+func UpdateNodePosition(c *gin.Context) {
+	pipelineID, ok := parseID(
+		c,
+		"id",
+		"Invalid pipeline ID",
+	)
+
+	if !ok {
+		return
+	}
+
+	nodeID, ok := parseID(
+		c,
+		"nodeId",
+		"Invalid node ID",
+	)
+
+	if !ok {
+		return
+	}
+
+	userID, ok := getUserID(c)
+
+	if !ok {
+		return
+	}
+
+	var req dto.UpdatePipelineNodePositionRequest
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.BadRequest(
+			c,
+			"Invalid request",
+			err.Error(),
+		)
+		return
+	}
+
+	err := graphService.UpdateNodePosition(
+		pipelineID,
+		nodeID,
+		userID,
+		req.PositionX,
+		req.PositionY,
+	)
+
+	switch {
+	case errors.Is(
+		err,
+		service.ErrGraphPipelineNotFound,
+	):
+		response.Error(
+			c,
+			http.StatusNotFound,
+			"Pipeline not found or access denied",
+			nil,
+		)
+
+	case errors.Is(
+		err,
+		service.ErrGraphNodeNotFound,
+	):
+		response.Error(
+			c,
+			http.StatusNotFound,
+			"Node not found",
+			nil,
+		)
+
+	case err != nil:
+		response.InternalServerError(
+			c,
+			"Unable to update node position",
+		)
+
+	default:
+		response.Success(
+			c,
+			http.StatusOK,
+			"Node position updated successfully",
+			nil,
+		)
+	}
+}

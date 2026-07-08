@@ -320,3 +320,43 @@ func wouldCreateCycle(
 		targetNodeID,
 	)
 }
+
+func (s *PipelineGraphService) UpdateNodePosition(
+	pipelineID uint,
+	nodeID uint,
+	userID uint,
+	positionX float64,
+	positionY float64,
+) error {
+	allowed, err :=
+		s.repo.PipelineBelongsToUser(
+			pipelineID,
+			userID,
+		)
+
+	if err != nil {
+		return err
+	}
+
+	if !allowed {
+		return ErrGraphPipelineNotFound
+	}
+
+	updated, err :=
+		s.repo.UpdateNodePosition(
+			nodeID,
+			pipelineID,
+			positionX,
+			positionY,
+		)
+
+	if err != nil {
+		return err
+	}
+
+	if !updated {
+		return ErrGraphNodeNotFound
+	}
+
+	return nil
+}

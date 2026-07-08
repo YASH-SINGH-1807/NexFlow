@@ -222,3 +222,28 @@ func (r *PipelineGraphRepository) DeleteEdge(
 
 	return result.RowsAffected > 0, nil
 }
+
+func (r *PipelineGraphRepository) UpdateNodePosition(
+	nodeID uint,
+	pipelineID uint,
+	positionX float64,
+	positionY float64,
+) (bool, error) {
+	result := database.DB.
+		Model(&model.PipelineNode{}).
+		Where(
+			"id = ? AND pipeline_id = ?",
+			nodeID,
+			pipelineID,
+		).
+		Updates(map[string]interface{}{
+			"position_x": positionX,
+			"position_y": positionY,
+		})
+
+	if result.Error != nil {
+		return false, result.Error
+	}
+
+	return result.RowsAffected > 0, nil
+}

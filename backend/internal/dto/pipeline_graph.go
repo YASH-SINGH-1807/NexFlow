@@ -19,3 +19,8 @@ type CreatePipelineEdgeRequest struct {
 
 	TargetNodeID uint `json:"targetNodeId" binding:"required"`
 }
+
+type UpdatePipelineNodePositionRequest struct {
+	PositionX float64 `json:"positionX"`
+	PositionY float64 `json:"positionY"`
+}

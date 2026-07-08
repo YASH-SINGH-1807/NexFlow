@@ -144,6 +144,11 @@ func RegisterRoutes(router *gin.Engine) {
 			pipelinegraph.GetGraph,
 		)
 
+		protected.PATCH(
+			"/pipelines/:id/nodes/:nodeId/position",
+			pipelinegraph.UpdateNodePosition,
+		)
+
 		protected.DELETE(
 			"/pipelines/:id/nodes/:nodeId",
 			pipelinegraph.DeleteNode,

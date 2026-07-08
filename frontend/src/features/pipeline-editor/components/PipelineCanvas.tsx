@@ -7,6 +7,7 @@ import {
   type Connection,
   type Edge,
   type NodeTypes,
+  type OnNodeDrag,
 } from "@xyflow/react";
 
 import {
@@ -16,19 +17,27 @@ import {
 
 import "@xyflow/react/dist/style.css";
 
+import type {
+  PipelineNodeType,
+} from "@/features/pipeline/api/pipelineGraphApi";
+
+import AddNodePanel from "./AddNodePanel";
 import PipelineNode from "./PipelineNode";
 
+import { useCreatePipelineEdge } from "../hooks/useCreatePipelineEdge";
+import { useCreatePipelineNode } from "../hooks/useCreatePipelineNode";
 import { usePipelineGraph } from "../hooks/usePipelineGraph";
 
-import { useCreatePipelineEdge } from "../hooks/useCreatePipelineEdge";
-
-import {
-  mapPipelineGraphToFlow,
-} from "../utils/graphMapper";
+import { useDeletePipelineNode } from "../hooks/useDeletePipelineNode";
+import { useUpdatePipelineNodePosition } from "../hooks/useUpdatePipelineNodePosition";
 
 import type {
   PipelineFlowNode,
 } from "../types/editor";
+
+import {
+  mapPipelineGraphToFlow,
+} from "../utils/graphMapper";
 
 const nodeTypes: NodeTypes = {
   pipelineNode: PipelineNode,
@@ -40,14 +49,25 @@ interface PipelineCanvasProps {
 
 const initialEdges: Edge[] = [];
 
+const nodeNames: Record<
+  PipelineNodeType,
+  string
+> = {
+  source: "New Source",
+  transform: "New Transform",
+  destination: "New Destination",
+};
+
 export default function PipelineCanvas({
   pipelineId,
 }: PipelineCanvasProps) {
   const [
-  nodes,
-  setNodes,
-  onNodesChange,
-] = useNodesState<PipelineFlowNode>([]);
+    nodes,
+    setNodes,
+    onNodesChange,
+  ] =
+    useNodesState<PipelineFlowNode>([]);
+
   const [
     edges,
     setEdges,
@@ -61,7 +81,16 @@ export default function PipelineCanvas({
   } = usePipelineGraph(pipelineId);
 
   const createEdgeMutation =
-  useCreatePipelineEdge();
+    useCreatePipelineEdge();
+
+  const createNodeMutation =
+    useCreatePipelineNode();
+
+    const deleteNodeMutation =
+  useDeletePipelineNode();
+
+  const updateNodePositionMutation =
+  useUpdatePipelineNodePosition();
 
   useEffect(() => {
     if (!graph) {
@@ -79,34 +108,97 @@ export default function PipelineCanvas({
     setEdges,
   ]);
 
-  const onConnect = useCallback(
-  (connection: Connection) => {
-    if (
-      !connection.source ||
-      !connection.target
-    ) {
-      return;
-    }
+  const handleAddNode = useCallback(
+    (type: PipelineNodeType) => {
+      const nodeIndex = nodes.length;
 
-    createEdgeMutation.mutate({
+      createNodeMutation.mutate({
+        pipelineId,
+
+        data: {
+          name: nodeNames[type],
+          type,
+          config: "{}",
+
+          positionX:
+            150 + (nodeIndex % 3) * 300,
+
+          positionY:
+            150 +
+            Math.floor(nodeIndex / 3) *
+              180,
+        },
+      });
+    },
+    [
+      createNodeMutation,
+      nodes.length,
       pipelineId,
+    ]
+  );
 
-      data: {
-        sourceNodeId: Number(
-          connection.source
-        ),
-
-        targetNodeId: Number(
-          connection.target
-        ),
-      },
-    });
+  const handleNodesDelete = useCallback(
+  (deletedNodes: PipelineFlowNode[]) => {
+    for (const node of deletedNodes) {
+      deleteNodeMutation.mutate({
+        pipelineId,
+        nodeId: Number(node.id),
+      });
+    }
   },
   [
-    createEdgeMutation,
+    deleteNodeMutation,
     pipelineId,
   ]
 );
+
+const handleNodeDragStop: OnNodeDrag<PipelineFlowNode> =
+  useCallback(
+    (_event, node) => {
+      updateNodePositionMutation.mutate({
+        pipelineId,
+        nodeId: Number(node.id),
+
+        data: {
+          positionX: node.position.x,
+          positionY: node.position.y,
+        },
+      });
+    },
+    [
+      pipelineId,
+      updateNodePositionMutation,
+    ]
+  );
+
+  const onConnect = useCallback(
+    (connection: Connection) => {
+      if (
+        !connection.source ||
+        !connection.target
+      ) {
+        return;
+      }
+
+      createEdgeMutation.mutate({
+        pipelineId,
+
+        data: {
+          sourceNodeId: Number(
+            connection.source
+          ),
+
+          targetNodeId: Number(
+            connection.target
+          ),
+        },
+      });
+    },
+    [
+      createEdgeMutation,
+      pipelineId,
+    ]
+  );
 
   if (isLoading) {
     return (
@@ -129,28 +221,40 @@ export default function PipelineCanvas({
   }
 
   return (
-    <div
-      className="
-        h-full
-        w-full
-        overflow-hidden
-        rounded-3xl
-        border
-        bg-white
-      "
-    >
-      <ReactFlow
-        nodes={nodes}
-        edges={edges}
-        nodeTypes={nodeTypes}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
-        fitView
+    <div className="flex h-full w-full flex-col gap-4">
+      <AddNodePanel
+        onAddNode={handleAddNode}
+        isCreating={
+          createNodeMutation.isPending
+        }
+      />
+
+      <div
+        className="
+          min-h-0
+          flex-1
+          overflow-hidden
+          rounded-3xl
+          border
+          bg-white
+        "
       >
-        <Background />
-        <Controls />
-      </ReactFlow>
+        <ReactFlow
+  nodes={nodes}
+  edges={edges}
+  nodeTypes={nodeTypes}
+  onNodesChange={onNodesChange}
+  onEdgesChange={onEdgesChange}
+  onNodesDelete={handleNodesDelete}
+  onNodeDragStop={handleNodeDragStop}
+  onConnect={onConnect}
+  deleteKeyCode={["Backspace", "Delete"]}
+  fitView
+>
+          <Background />
+          <Controls />
+        </ReactFlow>
+      </div>
     </div>
   );
 }

@@ -71,6 +71,17 @@ export async function deletePipelineNode(
   );
 }
 
+export async function updatePipelineNodePosition(
+  pipelineId: number,
+  nodeId: number,
+  data: UpdatePipelineNodePositionPayload
+): Promise<void> {
+  await api.patch(
+    `/pipelines/${pipelineId}/nodes/${nodeId}/position`,
+    data
+  );
+}
+
 export async function createPipelineEdge(
   pipelineId: number,
   data: CreatePipelineEdgePayload
@@ -90,4 +101,9 @@ export async function deletePipelineEdge(
   await api.delete(
     `/pipelines/${pipelineId}/edges/${edgeId}`
   );
+}
+
+export interface UpdatePipelineNodePositionPayload {
+  positionX: number;
+  positionY: number;
 }
