@@ -3,15 +3,15 @@ package model
 type PipelineEdge struct {
 	BaseModel
 
-	PipelineID uint `gorm:"not null;index" json:"pipelineId"`
+	PipelineID uint `gorm:"not null;index:idx_pipeline_edge_unique,unique" json:"pipelineId"`
 
 	Pipeline Pipeline `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
 
-	SourceNodeID uint `gorm:"not null;index" json:"sourceNodeId"`
+	SourceNodeID uint `gorm:"not null;index:idx_pipeline_edge_unique,unique" json:"sourceNodeId"`
 
 	SourceNode PipelineNode `gorm:"foreignKey:SourceNodeID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
 
-	TargetNodeID uint `gorm:"not null;index" json:"targetNodeId"`
+	TargetNodeID uint `gorm:"not null;index:idx_pipeline_edge_unique,unique" json:"targetNodeId"`
 
 	TargetNode PipelineNode `gorm:"foreignKey:TargetNodeID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
 }

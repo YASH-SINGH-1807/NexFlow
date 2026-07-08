@@ -125,3 +125,24 @@ func TestWouldCreateCycle_EmptyGraph(
 		)
 	}
 }
+
+func TestWouldCreateCycle_DuplicateEdgeDoesNotCreateCycle(
+	t *testing.T,
+) {
+	edges := []model.PipelineEdge{
+		{
+			SourceNodeID: 1,
+			TargetNodeID: 2,
+		},
+	}
+
+	if wouldCreateCycle(
+		edges,
+		1,
+		2,
+	) {
+		t.Fatal(
+			"expected duplicate direction not to be classified as a cycle",
+		)
+	}
+}

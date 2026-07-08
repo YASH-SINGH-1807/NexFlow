@@ -5,6 +5,7 @@ import (
 
 	"github.com/YASH-SINGH-1807/nexflow/backend/internal/model"
 	"github.com/YASH-SINGH-1807/nexflow/backend/internal/repository"
+	"github.com/jackc/pgx/v5/pgconn"
 )
 
 var ErrGraphPipelineNotFound = errors.New(
@@ -29,6 +30,10 @@ var ErrGraphSelfLoop = errors.New(
 
 var ErrGraphCycleDetected = errors.New(
 	"edge would create a cycle",
+)
+
+var ErrGraphDuplicateEdge = errors.New(
+	"edge already exists",
 )
 
 type PipelineGraphService struct {
@@ -179,6 +184,21 @@ func (s *PipelineGraphService) CreateEdge(
 		return ErrGraphInvalidNodes
 	}
 
+	edgeExists, err :=
+		s.repo.EdgeExists(
+			edge.PipelineID,
+			edge.SourceNodeID,
+			edge.TargetNodeID,
+		)
+
+	if err != nil {
+		return err
+	}
+
+	if edgeExists {
+		return ErrGraphDuplicateEdge
+	}
+
 	edges, err :=
 		s.repo.GetEdgesByPipelineID(
 			edge.PipelineID,
@@ -196,7 +216,20 @@ func (s *PipelineGraphService) CreateEdge(
 		return ErrGraphCycleDetected
 	}
 
-	return s.repo.CreateEdge(edge)
+	err = s.repo.CreateEdge(edge)
+
+	if err != nil {
+		var pgErr *pgconn.PgError
+
+		if errors.As(err, &pgErr) &&
+			pgErr.Code == "23505" {
+			return ErrGraphDuplicateEdge
+		}
+
+		return err
+	}
+
+	return nil
 }
 
 func (s *PipelineGraphService) DeleteEdge(

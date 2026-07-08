@@ -351,6 +351,17 @@ func CreateEdge(c *gin.Context) {
 			nil,
 		)
 
+	case errors.Is(
+		err,
+		service.ErrGraphDuplicateEdge,
+	):
+		response.Error(
+			c,
+			http.StatusConflict,
+			"Edge already exists",
+			nil,
+		)
+
 	case err != nil:
 		response.InternalServerError(
 			c,

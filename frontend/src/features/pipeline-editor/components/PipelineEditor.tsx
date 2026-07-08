@@ -1,8 +1,12 @@
 import PipelineCanvas from "./PipelineCanvas";
 
+interface PipelineEditorProps {
+  pipelineId: number;
+}
 
-export default function PipelineEditor() {
-
+export default function PipelineEditor({
+  pipelineId,
+}: PipelineEditorProps) {
   return (
     <div
       className="
@@ -11,7 +15,9 @@ export default function PipelineEditor() {
         p-6
       "
     >
-      <PipelineCanvas />
+      <PipelineCanvas
+        pipelineId={pipelineId}
+      />
     </div>
   );
 }

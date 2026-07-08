@@ -1,5 +1,4 @@
 import {
-  addEdge,
   Background,
   Controls,
   ReactFlow,
@@ -7,81 +6,127 @@ import {
   useNodesState,
   type Connection,
   type Edge,
-  type Node,
   type NodeTypes,
 } from "@xyflow/react";
 
-import { useCallback } from "react";
+import {
+  useCallback,
+  useEffect,
+} from "react";
 
 import "@xyflow/react/dist/style.css";
 
 import PipelineNode from "./PipelineNode";
 
+import { usePipelineGraph } from "../hooks/usePipelineGraph";
+
+import { useCreatePipelineEdge } from "../hooks/useCreatePipelineEdge";
+
+import {
+  mapPipelineGraphToFlow,
+} from "../utils/graphMapper";
+
+import type {
+  PipelineFlowNode,
+} from "../types/editor";
+
 const nodeTypes: NodeTypes = {
   pipelineNode: PipelineNode,
 };
 
-const initialNodes: Node[] = [
-  {
-    id: "1",
-    type: "pipelineNode",
-    position: {
-      x: 100,
-      y: 150,
-    },
-    data: {
-      label: "Input Database",
-      nodeType: "source",
-    },
-  },
-  {
-    id: "2",
-    type: "pipelineNode",
-    position: {
-      x: 400,
-      y: 150,
-    },
-    data: {
-      label: "Clean Data",
-      nodeType: "transform",
-    },
-  },
-  {
-    id: "3",
-    type: "pipelineNode",
-    position: {
-      x: 700,
-      y: 150,
-    },
-    data: {
-      label: "Output Storage",
-      nodeType: "destination",
-    },
-  },
-];
+interface PipelineCanvasProps {
+  pipelineId: number;
+}
 
 const initialEdges: Edge[] = [];
 
-export default function PipelineCanvas() {
- const [
+export default function PipelineCanvas({
+  pipelineId,
+}: PipelineCanvasProps) {
+  const [
   nodes,
-  ,
+  setNodes,
   onNodesChange,
-] = useNodesState(initialNodes);
+] = useNodesState<PipelineFlowNode>([]);
   const [
     edges,
     setEdges,
     onEdgesChange,
   ] = useEdgesState(initialEdges);
 
+  const {
+    data: graph,
+    isLoading,
+    isError,
+  } = usePipelineGraph(pipelineId);
+
+  const createEdgeMutation =
+  useCreatePipelineEdge();
+
+  useEffect(() => {
+    if (!graph) {
+      return;
+    }
+
+    const mappedGraph =
+      mapPipelineGraphToFlow(graph);
+
+    setNodes(mappedGraph.nodes);
+    setEdges(mappedGraph.edges);
+  }, [
+    graph,
+    setNodes,
+    setEdges,
+  ]);
+
   const onConnect = useCallback(
-    (connection: Connection) => {
-      setEdges((currentEdges) =>
-        addEdge(connection, currentEdges)
-      );
-    },
-    [setEdges]
-  );
+  (connection: Connection) => {
+    if (
+      !connection.source ||
+      !connection.target
+    ) {
+      return;
+    }
+
+    createEdgeMutation.mutate({
+      pipelineId,
+
+      data: {
+        sourceNodeId: Number(
+          connection.source
+        ),
+
+        targetNodeId: Number(
+          connection.target
+        ),
+      },
+    });
+  },
+  [
+    createEdgeMutation,
+    pipelineId,
+  ]
+);
+
+  if (isLoading) {
+    return (
+      <div className="flex h-full w-full items-center justify-center rounded-3xl border bg-white">
+        <p className="font-medium text-slate-500">
+          Loading pipeline graph...
+        </p>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="flex h-full w-full items-center justify-center rounded-3xl border border-red-200 bg-red-50">
+        <p className="font-medium text-red-600">
+          Unable to load pipeline graph.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div

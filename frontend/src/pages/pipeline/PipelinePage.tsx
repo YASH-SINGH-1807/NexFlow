@@ -451,7 +451,7 @@ async function handleRunPipeline(
   }
   onConfirm={handleDeletePipeline}
 />
-    <PipelineEditor />
+    <PipelineEditor pipelineId={6} />
 
     </DashboardLayout>
   );
