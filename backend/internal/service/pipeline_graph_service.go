@@ -360,3 +360,43 @@ func (s *PipelineGraphService) UpdateNodePosition(
 
 	return nil
 }
+
+func (s *PipelineGraphService) UpdateNode(
+	pipelineID uint,
+	nodeID uint,
+	userID uint,
+	name string,
+	config string,
+) error {
+	allowed, err :=
+		s.repo.PipelineBelongsToUser(
+			pipelineID,
+			userID,
+		)
+
+	if err != nil {
+		return err
+	}
+
+	if !allowed {
+		return ErrGraphPipelineNotFound
+	}
+
+	updated, err :=
+		s.repo.UpdateNode(
+			nodeID,
+			pipelineID,
+			name,
+			config,
+		)
+
+	if err != nil {
+		return err
+	}
+
+	if !updated {
+		return ErrGraphNodeNotFound
+	}
+
+	return nil
+}

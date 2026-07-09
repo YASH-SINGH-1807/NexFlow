@@ -13,7 +13,9 @@ import type {
 } from "../types/editor";
 
 export function mapPipelineNodeToFlowNode(
-  node: PipelineNode
+  node: PipelineNode,
+  onDelete?: (nodeId: number) => void,
+  deletingNodeId?: number
 ): PipelineFlowNode {
   return {
     id: String(node.id),
@@ -25,9 +27,11 @@ export function mapPipelineNodeToFlowNode(
     },
 
     data: {
-      label: node.name,
-      nodeType: node.type,
-    },
+  label: node.name,
+  nodeType: node.type,
+  onDelete,
+  isDeleting: deletingNodeId === node.id,
+},
   };
 }
 
@@ -42,14 +46,20 @@ export function mapPipelineEdgeToFlowEdge(
 }
 
 export function mapPipelineGraphToFlow(
-  graph: PipelineGraph
+  graph: PipelineGraph,
+  onDelete?: (nodeId: number) => void,
+  deletingNodeId?: number
 ): {
   nodes: PipelineFlowNode[];
   edges: Edge[];
 } {
   return {
-    nodes: graph.nodes.map(
-      mapPipelineNodeToFlowNode
+    nodes: graph.nodes.map((node) =>
+      mapPipelineNodeToFlowNode(
+  node,
+  onDelete,
+  deletingNodeId
+)
     ),
 
     edges: graph.edges.map(

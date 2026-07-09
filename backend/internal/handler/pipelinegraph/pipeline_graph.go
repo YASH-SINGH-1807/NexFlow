@@ -535,3 +535,94 @@ func UpdateNodePosition(c *gin.Context) {
 		)
 	}
 }
+
+func UpdateNode(c *gin.Context) {
+	pipelineID, ok := parseID(
+		c,
+		"id",
+		"Invalid pipeline ID",
+	)
+
+	if !ok {
+		return
+	}
+
+	nodeID, ok := parseID(
+		c,
+		"nodeId",
+		"Invalid node ID",
+	)
+
+	if !ok {
+		return
+	}
+
+	userID, ok := getUserID(c)
+
+	if !ok {
+		return
+	}
+
+	var req dto.UpdatePipelineNodeRequest
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.BadRequest(
+			c,
+			"Invalid request",
+			err.Error(),
+		)
+		return
+	}
+
+	config := req.Config
+
+	if config == "" {
+		config = "{}"
+	}
+
+	err := graphService.UpdateNode(
+		pipelineID,
+		nodeID,
+		userID,
+		req.Name,
+		config,
+	)
+
+	switch {
+	case errors.Is(
+		err,
+		service.ErrGraphPipelineNotFound,
+	):
+		response.Error(
+			c,
+			http.StatusNotFound,
+			"Pipeline not found or access denied",
+			nil,
+		)
+
+	case errors.Is(
+		err,
+		service.ErrGraphNodeNotFound,
+	):
+		response.Error(
+			c,
+			http.StatusNotFound,
+			"Node not found",
+			nil,
+		)
+
+	case err != nil:
+		response.InternalServerError(
+			c,
+			"Unable to update pipeline node",
+		)
+
+	default:
+		response.Success(
+			c,
+			http.StatusOK,
+			"Pipeline node updated successfully",
+			nil,
+		)
+	}
+}

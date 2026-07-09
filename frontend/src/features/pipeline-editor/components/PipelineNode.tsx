@@ -1,6 +1,7 @@
 import {
   Database,
   Send,
+  Trash2,
   WandSparkles,
 } from "lucide-react";
 
@@ -46,6 +47,7 @@ function getNodeLabel(
 }
 
 export default function PipelineNode({
+  id,
   data,
   selected,
 }: NodeProps<PipelineFlowNode>) {
@@ -75,31 +77,62 @@ export default function PipelineNode({
         />
       )}
 
-      <div className="flex items-center gap-3">
-        <div
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div
+            className="
+              flex
+              h-11
+              w-11
+              items-center
+              justify-center
+              rounded-xl
+              bg-blue-50
+              text-blue-600
+            "
+          >
+            <Icon size={22} />
+          </div>
+
+          <div>
+            <p className="text-xs font-semibold uppercase text-slate-400">
+              {getNodeLabel(data.nodeType)}
+            </p>
+
+            <h3 className="text-sm font-bold text-slate-800">
+              {data.label}
+            </h3>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          disabled={data.isDeleting}
+          onClick={(event) => {
+            event.stopPropagation();
+            data.onDelete?.(Number(id));
+          }}
           className="
+            nodrag
+            nopan
             flex
-            h-11
-            w-11
+            h-8
+            w-8
             items-center
             justify-center
-            rounded-xl
-            bg-blue-50
-            text-blue-600
+            rounded-lg
+            text-slate-400
+            transition
+            hover:bg-red-50
+            hover:text-red-500
+            disabled:cursor-not-allowed
+            disabled:opacity-50
           "
+          aria-label="Delete node"
+          title="Delete node"
         >
-          <Icon size={22} />
-        </div>
-
-        <div>
-          <p className="text-xs font-semibold uppercase text-slate-400">
-            {getNodeLabel(data.nodeType)}
-          </p>
-
-          <h3 className="text-sm font-bold text-slate-800">
-            {data.label}
-          </h3>
-        </div>
+          <Trash2 size={16} />
+        </button>
       </div>
 
       {data.nodeType !== "destination" && (

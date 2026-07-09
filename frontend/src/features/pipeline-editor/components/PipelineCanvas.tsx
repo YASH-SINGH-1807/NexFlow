@@ -7,12 +7,14 @@ import {
   type Connection,
   type Edge,
   type NodeTypes,
+  type NodeMouseHandler,
   type OnNodeDrag,
 } from "@xyflow/react";
 
 import {
   useCallback,
   useEffect,
+  useState,
 } from "react";
 
 import "@xyflow/react/dist/style.css";
@@ -24,12 +26,16 @@ import type {
 import AddNodePanel from "./AddNodePanel";
 import PipelineNode from "./PipelineNode";
 
+import NodeConfigPanel from "./NodeConfigPanel";
+
 import { useCreatePipelineEdge } from "../hooks/useCreatePipelineEdge";
 import { useCreatePipelineNode } from "../hooks/useCreatePipelineNode";
 import { usePipelineGraph } from "../hooks/usePipelineGraph";
 
 import { useDeletePipelineNode } from "../hooks/useDeletePipelineNode";
 import { useUpdatePipelineNodePosition } from "../hooks/useUpdatePipelineNodePosition";
+
+import { useUpdatePipelineNode } from "../hooks/useUpdatePipelineNode";
 
 import type {
   PipelineFlowNode,
@@ -80,6 +86,11 @@ export default function PipelineCanvas({
     isError,
   } = usePipelineGraph(pipelineId);
 
+  const [
+  selectedNodeId,
+  setSelectedNodeId,
+] = useState<number | null>(null);
+
   const createEdgeMutation =
     useCreatePipelineEdge();
 
@@ -89,23 +100,50 @@ export default function PipelineCanvas({
     const deleteNodeMutation =
   useDeletePipelineNode();
 
+  const deletingNodeId =
+  deleteNodeMutation.isPending
+    ? deleteNodeMutation.variables?.nodeId
+    : undefined;
+
   const updateNodePositionMutation =
   useUpdatePipelineNodePosition();
+
+  const updateNodeMutation =
+  useUpdatePipelineNode();
+
+ const handleDeleteNode = useCallback(
+  (nodeId: number) => {
+    deleteNodeMutation.mutate({
+      pipelineId,
+      nodeId,
+    });
+  },
+  [
+    deleteNodeMutation.mutate,
+    pipelineId,
+  ]
+);
 
   useEffect(() => {
     if (!graph) {
       return;
     }
 
-    const mappedGraph =
-      mapPipelineGraphToFlow(graph);
+   const mappedGraph =
+  mapPipelineGraphToFlow(
+    graph,
+    handleDeleteNode,
+    deletingNodeId
+  );
 
     setNodes(mappedGraph.nodes);
     setEdges(mappedGraph.edges);
   }, [
-    graph,
-    setNodes,
-    setEdges,
+  graph,
+  setNodes,
+  setEdges,
+  handleDeleteNode,
+  deletingNodeId,
   ]);
 
   const handleAddNode = useCallback(
@@ -152,6 +190,8 @@ export default function PipelineCanvas({
   ]
 );
 
+
+
 const handleNodeDragStop: OnNodeDrag<PipelineFlowNode> =
   useCallback(
     (_event, node) => {
@@ -169,6 +209,16 @@ const handleNodeDragStop: OnNodeDrag<PipelineFlowNode> =
       pipelineId,
       updateNodePositionMutation,
     ]
+  );
+
+  const handleNodeClick: NodeMouseHandler<PipelineFlowNode> =
+  useCallback(
+    (_event, node) => {
+      setSelectedNodeId(
+        Number(node.id)
+      );
+    },
+    []
   );
 
   const onConnect = useCallback(
@@ -220,6 +270,26 @@ const handleNodeDragStop: OnNodeDrag<PipelineFlowNode> =
     );
   }
 
+  const selectedNode =
+  graph?.nodes.find(
+    (node) => node.id === selectedNodeId
+  ) ?? null;
+
+  const handleSaveNode = (data: {
+  name: string;
+  config: string;
+}) => {
+  if (!selectedNode) {
+    return;
+  }
+
+  updateNodeMutation.mutate({
+    pipelineId,
+    nodeId: selectedNode.id,
+    data,
+  });
+};
+
   return (
     <div className="flex h-full w-full flex-col gap-4">
       <AddNodePanel
@@ -229,32 +299,46 @@ const handleNodeDragStop: OnNodeDrag<PipelineFlowNode> =
         }
       />
 
-      <div
-        className="
-          min-h-0
-          flex-1
-          overflow-hidden
-          rounded-3xl
-          border
-          bg-white
-        "
-      >
-        <ReactFlow
-  nodes={nodes}
-  edges={edges}
-  nodeTypes={nodeTypes}
-  onNodesChange={onNodesChange}
-  onEdgesChange={onEdgesChange}
-  onNodesDelete={handleNodesDelete}
-  onNodeDragStop={handleNodeDragStop}
-  onConnect={onConnect}
-  deleteKeyCode={["Backspace", "Delete"]}
-  fitView
->
-          <Background />
-          <Controls />
-        </ReactFlow>
-      </div>
+      <div className="flex min-h-0 flex-1 gap-4">
+  <div
+    className="
+      min-h-0
+      flex-1
+      overflow-hidden
+      rounded-3xl
+      border
+      bg-white
+    "
+  >
+    <ReactFlow
+      nodes={nodes}
+      edges={edges}
+      nodeTypes={nodeTypes}
+      onNodesChange={onNodesChange}
+      onEdgesChange={onEdgesChange}
+      onNodesDelete={handleNodesDelete}
+      onNodeDragStop={handleNodeDragStop}
+      onConnect={onConnect}
+      onNodeClick={handleNodeClick}
+      deleteKeyCode={["Backspace", "Delete"]}
+      fitView
+    >
+      <Background />
+      <Controls />
+    </ReactFlow>
+  </div>
+
+  {selectedNode && (
+    <NodeConfigPanel
+      node={selectedNode}
+      isSaving={updateNodeMutation.isPending}
+      onSave={handleSaveNode}
+      onClose={() =>
+        setSelectedNodeId(null)
+      }
+    />
+  )}
+</div>
     </div>
   );
 }

@@ -247,3 +247,28 @@ func (r *PipelineGraphRepository) UpdateNodePosition(
 
 	return result.RowsAffected > 0, nil
 }
+
+func (r *PipelineGraphRepository) UpdateNode(
+	nodeID uint,
+	pipelineID uint,
+	name string,
+	config string,
+) (bool, error) {
+	result := database.DB.
+		Model(&model.PipelineNode{}).
+		Where(
+			"id = ? AND pipeline_id = ?",
+			nodeID,
+			pipelineID,
+		).
+		Updates(map[string]interface{}{
+			"name":   name,
+			"config": config,
+		})
+
+	if result.Error != nil {
+		return false, result.Error
+	}
+
+	return result.RowsAffected > 0, nil
+}

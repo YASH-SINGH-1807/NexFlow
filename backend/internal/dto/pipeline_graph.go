@@ -24,3 +24,9 @@ type UpdatePipelineNodePositionRequest struct {
 	PositionX float64 `json:"positionX"`
 	PositionY float64 `json:"positionY"`
 }
+
+type UpdatePipelineNodeRequest struct {
+	Name string `json:"name" binding:"required,min=1,max=150"`
+
+	Config string `json:"config"`
+}

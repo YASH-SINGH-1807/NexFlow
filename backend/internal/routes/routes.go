@@ -139,6 +139,11 @@ func RegisterRoutes(router *gin.Engine) {
 			pipelinegraph.CreateNode,
 		)
 
+		protected.PATCH(
+			"/pipelines/:id/nodes/:nodeId",
+			pipelinegraph.UpdateNode,
+		)
+
 		protected.GET(
 			"/pipelines/:id/graph",
 			pipelinegraph.GetGraph,
