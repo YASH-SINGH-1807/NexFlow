@@ -8,6 +8,24 @@ import type {
   PipelineNode,
 } from "@/features/pipeline/api/pipelineGraphApi";
 
+import SourceNodeConfigForm from "./config/SourceNodeConfigForm";
+
+import TransformNodeConfigForm from "./config/TransformNodeConfigForm";
+
+import DestinationNodeConfigForm from "./config/DestinationNodeConfigForm";
+
+import type {
+  DestinationNodeConfig,
+  SourceNodeConfig,
+  TransformNodeConfig,
+} from "../types/nodeConfig";
+
+import {
+  parseNodeConfig,
+  serializeNodeConfig,
+} from "../utils/nodeConfig";
+
+
 interface NodeConfigPanelProps {
   node: PipelineNode;
   isSaving: boolean;
@@ -32,9 +50,49 @@ export default function NodeConfigPanel({
   const [config, setConfig] =
     useState(node.config || "{}");
 
+  const [, setConfigError] =
+  useState<string | null>(null);
+
+  const parsedSourceConfig =
+    node.type === "source"
+      ? parseNodeConfig<SourceNodeConfig>(
+          config
+        )
+      : null;
+
+  const sourceConfig: SourceNodeConfig =
+    parsedSourceConfig ?? {
+      connectionType: "postgresql",
+    };
+
+    const parsedTransformConfig =
+  node.type === "transform"
+    ? parseNodeConfig<TransformNodeConfig>(
+        config
+      )
+    : null;
+
+const transformConfig: TransformNodeConfig =
+  parsedTransformConfig ?? {
+    operation: "filter",
+  };
+
+  const parsedDestinationConfig =
+  node.type === "destination"
+    ? parseNodeConfig<DestinationNodeConfig>(
+        config
+      )
+    : null;
+
+const destinationConfig: DestinationNodeConfig =
+  parsedDestinationConfig ?? {
+    destinationType: "postgresql",
+  };
+
   useEffect(() => {
     setName(node.name);
     setConfig(node.config || "{}");
+    setConfigError(null);
   }, [node]);
 
   const handleSubmit = (
@@ -42,9 +100,22 @@ export default function NodeConfigPanel({
   ) => {
     event.preventDefault();
 
+    const normalizedConfig =
+      config.trim() || "{}";
+
+    try {
+      JSON.parse(normalizedConfig);
+      setConfigError(null);
+    } catch {
+      setConfigError(
+        "Configuration must be valid JSON."
+      );
+      return;
+    }
+
     onSave({
       name: name.trim(),
-      config: config.trim() || "{}",
+      config: normalizedConfig,
     });
   };
 
@@ -133,41 +204,51 @@ export default function NodeConfigPanel({
           />
         </div>
 
-        <div>
-          <label
-            htmlFor="node-config"
-            className="mb-2 block text-sm font-semibold text-slate-700"
-          >
-            Configuration JSON
-          </label>
+        {node.type === "source" && (
+          <SourceNodeConfigForm
+            value={sourceConfig}
+            onChange={(nextConfig) => {
+              setConfig(
+                serializeNodeConfig(
+                  nextConfig
+                )
+              );
 
-          <textarea
-            id="node-config"
-            value={config}
-            onChange={(event) =>
-              setConfig(event.target.value)
-            }
-            rows={10}
-            spellCheck={false}
-            className="
-              w-full
-              resize-y
-              rounded-xl
-              border
-              border-slate-200
-              px-3
-              py-2.5
-              font-mono
-              text-sm
-              text-slate-900
-              outline-none
-              transition
-              focus:border-blue-400
-              focus:ring-4
-              focus:ring-blue-50
-            "
+              setConfigError(null);
+            }}
           />
-        </div>
+        )}
+
+        {node.type === "transform" && (
+  <TransformNodeConfigForm
+    value={transformConfig}
+    onChange={(nextConfig) => {
+      setConfig(
+        serializeNodeConfig(
+          nextConfig
+        )
+      );
+
+      setConfigError(null);
+    }}
+  />
+)}
+
+{node.type === "destination" && (
+  <DestinationNodeConfigForm
+    value={destinationConfig}
+    onChange={(nextConfig) => {
+      setConfig(
+        serializeNodeConfig(
+          nextConfig
+        )
+      );
+
+      setConfigError(null);
+    }}
+  />
+)}
+
 
         <button
           type="submit"
