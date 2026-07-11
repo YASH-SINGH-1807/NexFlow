@@ -127,6 +127,18 @@ func CreateNode(c *gin.Context) {
 		return
 	}
 
+	if errors.Is(
+		err,
+		service.ErrInvalidNodeConfig,
+	) {
+		response.BadRequest(
+			c,
+			"Invalid node configuration",
+			nil,
+		)
+		return
+	}
+
 	if err != nil {
 		response.InternalServerError(
 			c,
@@ -608,6 +620,16 @@ func UpdateNode(c *gin.Context) {
 			c,
 			http.StatusNotFound,
 			"Node not found",
+			nil,
+		)
+
+	case errors.Is(
+		err,
+		service.ErrInvalidNodeConfig,
+	):
+		response.BadRequest(
+			c,
+			"Invalid node configuration",
 			nil,
 		)
 

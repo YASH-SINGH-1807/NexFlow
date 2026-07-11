@@ -63,6 +63,29 @@ func (r *PipelineGraphRepository) GetNodesByPipelineID(
 	return nodes, err
 }
 
+func (r *PipelineGraphRepository) GetNode(
+	nodeID uint,
+	pipelineID uint,
+) (*model.PipelineNode, error) {
+
+	var node model.PipelineNode
+
+	err := database.DB.
+		Where(
+			"id = ? AND pipeline_id = ?",
+			nodeID,
+			pipelineID,
+		).
+		First(&node).
+		Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &node, nil
+}
+
 func (r *PipelineGraphRepository) DeleteNode(
 	nodeID uint,
 	pipelineID uint,

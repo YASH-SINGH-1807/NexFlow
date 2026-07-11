@@ -64,6 +64,13 @@ func (s *PipelineGraphService) CreateNode(
 		return ErrGraphPipelineNotFound
 	}
 
+	if err := ValidateNodeConfig(
+		node.Type,
+		node.Config,
+	); err != nil {
+		return err
+	}
+
 	return s.repo.CreateNode(node)
 }
 
@@ -380,6 +387,23 @@ func (s *PipelineGraphService) UpdateNode(
 
 	if !allowed {
 		return ErrGraphPipelineNotFound
+	}
+
+	node, err :=
+		s.repo.GetNode(
+			nodeID,
+			pipelineID,
+		)
+
+	if err != nil {
+		return err
+	}
+
+	if err := ValidateNodeConfig(
+		node.Type,
+		config,
+	); err != nil {
+		return err
 	}
 
 	updated, err :=
