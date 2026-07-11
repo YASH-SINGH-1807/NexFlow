@@ -156,7 +156,28 @@ export default function PipelineCanvas({
         data: {
           name: nodeNames[type],
           type,
-          config: "{}",
+          config:
+  type === "source"
+    ? JSON.stringify({
+  connectionType: "postgresql",
+  host: "localhost",
+  port: 5432,
+  database: "postgres",
+  username: "postgres",
+})
+
+    : type === "transform"
+      ? JSON.stringify({
+  operation: "filter",
+  expression: "true",
+})
+      : JSON.stringify({
+  destinationType: "postgresql",
+  host: "localhost",
+  port: 5432,
+  database: "postgres",
+  table: "output_table",
+}),
 
           positionX:
             150 + (nodeIndex % 3) * 300,

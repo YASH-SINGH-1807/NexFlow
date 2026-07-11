@@ -133,7 +133,7 @@ func CreateNode(c *gin.Context) {
 	) {
 		response.BadRequest(
 			c,
-			"Invalid node configuration",
+			err.Error(),
 			nil,
 		)
 		return
