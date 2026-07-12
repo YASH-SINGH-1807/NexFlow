@@ -33,6 +33,10 @@ func validateSourceConfig(
 			return ErrInvalidNodeConfig
 		}
 
+		if strings.TrimSpace(cfg.Query) == "" {
+			return ErrInvalidNodeConfig
+		}
+
 	case model.SourceRESTAPI:
 
 		if strings.TrimSpace(cfg.URL) == "" {

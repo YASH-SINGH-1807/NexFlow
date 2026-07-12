@@ -16,6 +16,9 @@ type SourceNodeConfig struct {
 	Port     int    `json:"port,omitempty"`
 	Database string `json:"database,omitempty"`
 	Username string `json:"username,omitempty"`
+	Password string `json:"password,omitempty"`
+
+	Query string `json:"query,omitempty"`
 
 	FilePath string `json:"filePath,omitempty"`
 
