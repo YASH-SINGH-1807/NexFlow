@@ -150,3 +150,9 @@ func (s *JobService) MarkFailed(
 
 	return nil
 }
+
+func (s *JobService) GetByID(
+	jobID uint,
+) (*model.Job, error) {
+	return s.repo.GetByID(jobID)
+}

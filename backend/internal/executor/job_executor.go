@@ -11,18 +11,22 @@ import (
 type JobExecutor struct {
 	jobService    *service.JobService
 	jobLogService *service.JobLogService
+
+	runtime *PipelineRuntime
 }
 
 func NewJobExecutor(
 	jobService *service.JobService,
 	jobLogService *service.JobLogService,
 ) *JobExecutor {
+
 	return &JobExecutor{
 		jobService:    jobService,
 		jobLogService: jobLogService,
+
+		runtime: NewPipelineRuntime(),
 	}
 }
-
 func (e *JobExecutor) Execute(
 	jobID uint,
 	forceFailure bool,
@@ -134,6 +138,13 @@ func (e *JobExecutor) run(
 	); err != nil {
 		return err
 	}
+
+	job, err := e.jobService.GetByID(jobID)
+	if err != nil {
+		return err
+	}
+
+	_ = job
 
 	time.Sleep(1 * time.Second)
 

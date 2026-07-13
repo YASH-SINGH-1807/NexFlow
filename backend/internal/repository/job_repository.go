@@ -226,3 +226,20 @@ func (r *JobRepository) GetByIDAndUserID(
 
 	return &job, nil
 }
+
+func (r *JobRepository) GetByID(
+	jobID uint,
+) (*model.Job, error) {
+	var job model.Job
+
+	err := database.DB.
+		Preload("Pipeline").
+		First(&job, jobID).
+		Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &job, nil
+}

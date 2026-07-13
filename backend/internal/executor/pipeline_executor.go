@@ -5,12 +5,14 @@ import (
 )
 
 type PipelineExecutor struct {
-	sourceExecutor *SourceExecutor
+	sourceExecutor      *SourceExecutor
+	destinationExecutor *DestinationExecutor
 }
 
 func NewPipelineExecutor() *PipelineExecutor {
 	return &PipelineExecutor{
-		sourceExecutor: NewSourceExecutor(),
+		sourceExecutor:      NewSourceExecutor(),
+		destinationExecutor: NewDestinationExecutor(),
 	}
 }
 
@@ -25,12 +27,23 @@ func (e *PipelineExecutor) Execute(
 		switch node.Type {
 
 		case model.PipelineNodeTypeSource:
+
 			if err := e.sourceExecutor.Execute(
 				node,
 				ctx,
 			); err != nil {
 				return err
 			}
+
+		case model.PipelineNodeTypeDestination:
+
+			if err := e.destinationExecutor.Execute(
+				node,
+				ctx,
+			); err != nil {
+				return err
+			}
+
 		}
 	}
 
