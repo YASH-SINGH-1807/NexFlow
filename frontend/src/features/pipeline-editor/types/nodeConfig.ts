@@ -11,6 +11,9 @@ export interface SourceNodeConfig {
   port?: number;
   database?: string;
   username?: string;
+  password?: string;
+
+  query?: string;
 
   filePath?: string;
 

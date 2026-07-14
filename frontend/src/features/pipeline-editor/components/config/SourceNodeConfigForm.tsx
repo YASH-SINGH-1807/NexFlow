@@ -131,6 +131,22 @@ export default function SourceNodeConfigForm({
               )
             }
           />
+
+          <TextField
+  label="Password"
+  value={value.password ?? ""}
+  onChange={(password) =>
+    updateField("password", password)
+  }
+/>
+
+<TextAreaField
+  label="SQL Query"
+  value={value.query ?? ""}
+  onChange={(query) =>
+    updateField("query", query)
+  }
+/>
         </>
       )}
 
@@ -279,6 +295,49 @@ function NumberField({
               : Number(rawValue)
           );
         }}
+        className="
+          w-full
+          rounded-xl
+          border
+          border-slate-200
+          px-3
+          py-2.5
+          text-sm
+          text-slate-900
+          outline-none
+          transition
+          focus:border-blue-400
+          focus:ring-4
+          focus:ring-blue-50
+        "
+      />
+    </label>
+  );
+}
+
+interface TextAreaFieldProps {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+}
+
+function TextAreaField({
+  label,
+  value,
+  onChange,
+}: TextAreaFieldProps) {
+  return (
+    <label className="block">
+      <span className="mb-2 block text-sm font-semibold text-slate-700">
+        {label}
+      </span>
+
+      <textarea
+        rows={5}
+        value={value}
+        onChange={(event) =>
+          onChange(event.target.value)
+        }
         className="
           w-full
           rounded-xl

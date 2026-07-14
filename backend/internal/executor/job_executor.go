@@ -3,7 +3,6 @@ package executor
 import (
 	"errors"
 	"log"
-	"time"
 
 	"github.com/YASH-SINGH-1807/nexflow/backend/internal/service"
 )
@@ -126,10 +125,9 @@ func (e *JobExecutor) run(
 	jobID uint,
 	forceFailure bool,
 ) error {
+
 	if jobID == 0 {
-		return errors.New(
-			"invalid job ID",
-		)
+		return errors.New("invalid job ID")
 	}
 
 	if err := e.jobLogService.Info(
@@ -144,19 +142,6 @@ func (e *JobExecutor) run(
 		return err
 	}
 
-	_ = job
-
-	time.Sleep(1 * time.Second)
-
-	if err := e.jobLogService.Info(
-		jobID,
-		"Validating pipeline configuration",
-	); err != nil {
-		return err
-	}
-
-	time.Sleep(1 * time.Second)
-
 	if forceFailure {
 		return errors.New(
 			"pipeline configuration validation failed: controlled test failure",
@@ -165,21 +150,23 @@ func (e *JobExecutor) run(
 
 	if err := e.jobLogService.Info(
 		jobID,
-		"Executing pipeline workflow",
+		"Running pipeline runtime",
 	); err != nil {
 		return err
 	}
 
-	time.Sleep(1 * time.Second)
+	if err := e.runtime.Execute(
+		job.PipelineID,
+	); err != nil {
+		return err
+	}
 
 	if err := e.jobLogService.Info(
 		jobID,
-		"Finalizing pipeline execution",
+		"Pipeline runtime completed successfully",
 	); err != nil {
 		return err
 	}
-
-	time.Sleep(1 * time.Second)
 
 	return nil
 }

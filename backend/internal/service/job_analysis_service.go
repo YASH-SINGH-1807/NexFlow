@@ -145,9 +145,8 @@ func (s *JobAnalysisService) GetByJobID(
 		)
 
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, ErrJobAnalysisNotFound
-	}
-
+	return nil, nil
+}
 	if err != nil {
 		return nil, err
 	}

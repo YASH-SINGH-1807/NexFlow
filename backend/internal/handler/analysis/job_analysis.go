@@ -157,18 +157,6 @@ func Get(c *gin.Context) {
 			userID,
 		)
 
-	if errors.Is(
-		err,
-		service.ErrJobAnalysisNotFound,
-	) {
-		response.Error(
-			c,
-			http.StatusNotFound,
-			"Job analysis not found",
-			nil,
-		)
-		return
-	}
 
 	if err != nil {
 		response.InternalServerError(

@@ -14,10 +14,18 @@ export async function analyzeJobFailure(
 
 export async function getJobAnalysis(
   jobId: number
-): Promise<JobAnalysis> {
-  const response = await api.get(
-    `/jobs/${jobId}/analysis`
-  );
+): Promise<JobAnalysis | null> {
+  try {
+    const response = await api.get(
+      `/jobs/${jobId}/analysis`
+    );
 
-  return response.data.data;
+    return response.data.data;
+  } catch (error: any) {
+    if (error.response?.status === 404) {
+      return null;
+    }
+
+    throw error;
+  }
 }
