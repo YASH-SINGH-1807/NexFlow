@@ -1,5 +1,5 @@
 import PipelineEditor from "@/features/pipeline-editor/components/PipelineEditor";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import {
   Pencil,
@@ -45,6 +45,11 @@ export default function PipelinePage() {
    pipelineToDelete,
    setPipelineToDelete,
 ] = useState<Pipeline | null>(null);
+
+const [
+  selectedPipelineId,
+  setSelectedPipelineId,
+] = useState<number | null>(null);
 
   const {
     data: pipelines = [],
@@ -93,6 +98,20 @@ export default function PipelinePage() {
       );
     }
   );
+  
+  useEffect(() => {
+  if (
+    filteredPipelines.length > 0 &&
+    selectedPipelineId === null
+  ) {
+    setSelectedPipelineId(
+      filteredPipelines[0].id
+    );
+  }
+}, [
+  filteredPipelines,
+  selectedPipelineId,
+]);
 
   async function handleDeletePipeline() {
   if (!pipelineToDelete) {
@@ -333,6 +352,9 @@ async function handleRunPipeline(
                 (pipeline, index) => (
                   <motion.article
                     key={pipeline.id}
+                    onClick={() =>
+setSelectedPipelineId(pipeline.id)
+}
                     initial={{
                       opacity: 0,
                       y: 18,
@@ -451,7 +473,11 @@ async function handleRunPipeline(
   }
   onConfirm={handleDeletePipeline}
 />
-    <PipelineEditor pipelineId={6} />
+    {selectedPipelineId !== null && (
+  <PipelineEditor
+    pipelineId={selectedPipelineId}
+  />
+)}
 
     </DashboardLayout>
   );

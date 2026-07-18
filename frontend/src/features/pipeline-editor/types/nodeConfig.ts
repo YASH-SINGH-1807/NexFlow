@@ -34,6 +34,15 @@ export interface TransformNodeConfig {
   groupBy?: string[];
   sortField?: string;
   sortDirection?: "asc" | "desc";
+
+  aggregateField?: string;
+
+  aggregateFunction?:
+  | "count"
+  | "sum"
+  | "avg"
+  | "min"
+  | "max";
 }
 
 export type DestinationType =

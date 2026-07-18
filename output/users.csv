@@ -1,2 +1,5 @@
-created_at,deleted_at,email,id,name,password_hash,updated_at,username
-1782996965328,,yash@example.com,1,Yash Singh,$2a$10$m8S0E3YlcnMuduLSaVrwl.UF8OZBe25WKMKcGXfFF1Dj1ldRSkYm.,1782996965328,yash
+country,created_at,deleted_at,email,id,name,password_hash,updated_at,username
+India,1784025000001,,bob@example.com,3,Bob,dummyhash,1784025000001,bob
+USA,1784025000000,,alice@example.com,2,Alice,dummyhash,1784025000000,alice
+India,1782996965328,,yash@example.com,1,Yash Singh,$2a$10$m8S0E3YlcnMuduLSaVrwl.UF8OZBe25WKMKcGXfFF1Dj1ldRSkYm.,1782996965328,yash
+USA,1782996965328,,charlie@example.com,4,Charlie,$2a$10$m8S0E3YlcnMuduLSaVrwl.UF8OZBe25WKMKcGXfFF1Dj1ldRSkYm.,1782996965328,charlie

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 
 	"github.com/YASH-SINGH-1807/nexflow/backend/internal/model"
+	"github.com/YASH-SINGH-1807/nexflow/backend/internal/service"
 )
 
 type DestinationExecutor struct{}
@@ -13,14 +14,14 @@ func NewDestinationExecutor() *DestinationExecutor {
 }
 
 func (e *DestinationExecutor) Execute(
-	node model.PipelineNode,
+	node service.ExecutionNode,
 	ctx *ExecutionContext,
 ) error {
 
 	var config model.DestinationNodeConfig
 
 	if err := json.Unmarshal(
-		[]byte(node.Config),
+		[]byte(node.Node.Config),
 		&config,
 	); err != nil {
 		return err
@@ -30,7 +31,14 @@ func (e *DestinationExecutor) Execute(
 
 	case model.DestinationCSV:
 		return e.executeCSV(
-			node.ID,
+			node,
+			config,
+			ctx,
+		)
+
+	case model.DestinationPostgreSQL:
+		return e.executePostgreSQL(
+			node,
 			config,
 			ctx,
 		)

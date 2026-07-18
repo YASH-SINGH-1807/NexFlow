@@ -2,24 +2,32 @@ package executor
 
 import (
 	"encoding/csv"
+	"log"
 	"os"
 	"sort"
 
 	"github.com/YASH-SINGH-1807/nexflow/backend/internal/model"
+	"github.com/YASH-SINGH-1807/nexflow/backend/internal/service"
 )
 
 func (e *DestinationExecutor) executeCSV(
-	nodeID uint,
+	node service.ExecutionNode,
 	config model.DestinationNodeConfig,
 	ctx *ExecutionContext,
 ) error {
 
-	var rows []map[string]any
-
-	for _, data := range ctx.NodeData {
-		rows = data
-		break
+	if len(node.ParentIDs) == 0 {
+		return ErrInvalidExecutionPlan
 	}
+
+	rows := ctx.GetNodeData(
+		node.ParentIDs[0],
+	)
+
+	log.Printf("========== DESTINATION ==========")
+	log.Printf("Rows received: %d", len(rows))
+	log.Printf("Output file: %s", config.FilePath)
+	log.Printf("=================================")
 
 	if len(rows) == 0 {
 		return nil

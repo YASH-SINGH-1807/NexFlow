@@ -2,27 +2,32 @@ package executor
 
 import (
 	"github.com/YASH-SINGH-1807/nexflow/backend/internal/model"
+	"github.com/YASH-SINGH-1807/nexflow/backend/internal/service"
 )
 
 type PipelineExecutor struct {
 	sourceExecutor      *SourceExecutor
+	transformExecutor   *TransformExecutor
 	destinationExecutor *DestinationExecutor
 }
 
 func NewPipelineExecutor() *PipelineExecutor {
 	return &PipelineExecutor{
 		sourceExecutor:      NewSourceExecutor(),
+		transformExecutor:   NewTransformExecutor(),
 		destinationExecutor: NewDestinationExecutor(),
 	}
 }
 
 func (e *PipelineExecutor) Execute(
-	plan []model.PipelineNode,
+	plan []service.ExecutionNode,
 ) error {
 
 	ctx := NewExecutionContext()
 
-	for _, node := range plan {
+	for _, executionNode := range plan {
+
+		node := executionNode.Node
 
 		switch node.Type {
 
@@ -35,10 +40,19 @@ func (e *PipelineExecutor) Execute(
 				return err
 			}
 
+		case model.PipelineNodeTypeTransform:
+
+			if err := e.transformExecutor.Execute(
+				executionNode,
+				ctx,
+			); err != nil {
+				return err
+			}
+
 		case model.PipelineNodeTypeDestination:
 
 			if err := e.destinationExecutor.Execute(
-				node,
+				executionNode,
 				ctx,
 			); err != nil {
 				return err

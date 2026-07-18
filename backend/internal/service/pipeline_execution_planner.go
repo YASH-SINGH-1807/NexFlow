@@ -5,8 +5,15 @@ import (
 	"github.com/YASH-SINGH-1807/nexflow/backend/internal/repository"
 )
 
+type ExecutionNode struct {
+	Node model.PipelineNode
+
+	ParentIDs []uint
+	ChildIDs  []uint
+}
+
 type ExecutionPlan struct {
-	Nodes []model.PipelineNode
+	Nodes []ExecutionNode
 }
 
 type PipelineExecutionPlanner struct {
@@ -101,15 +108,39 @@ func (p *PipelineExecutionPlanner) BuildExecutionPlan(
 	}
 
 	orderedNodes := make(
-		[]model.PipelineNode,
+		[]ExecutionNode,
 		0,
 		len(sortedIDs),
 	)
 
 	for _, id := range sortedIDs {
+
+		executionNode := ExecutionNode{
+			Node:      nodeMap[id],
+			ParentIDs: []uint{},
+			ChildIDs:  []uint{},
+		}
+
+		for _, edge := range edges {
+
+			if edge.TargetNodeID == id {
+				executionNode.ParentIDs = append(
+					executionNode.ParentIDs,
+					edge.SourceNodeID,
+				)
+			}
+
+			if edge.SourceNodeID == id {
+				executionNode.ChildIDs = append(
+					executionNode.ChildIDs,
+					edge.TargetNodeID,
+				)
+			}
+		}
+
 		orderedNodes = append(
 			orderedNodes,
-			nodeMap[id],
+			executionNode,
 		)
 	}
 

@@ -35,13 +35,32 @@ const (
 	TransformSort      TransformOperation = "sort"
 )
 
+type AggregateFunction string
+
+const (
+	AggregateCount AggregateFunction = "count"
+	AggregateSum   AggregateFunction = "sum"
+	AggregateAvg   AggregateFunction = "avg"
+	AggregateMin   AggregateFunction = "min"
+	AggregateMax   AggregateFunction = "max"
+)
+
 type TransformNodeConfig struct {
 	Operation TransformOperation `json:"operation"`
 
-	Expression string   `json:"expression,omitempty"`
-	GroupBy    []string `json:"groupBy,omitempty"`
+	// Filter
+	Expression string `json:"expression,omitempty"`
 
-	SortField     string `json:"sortField,omitempty"`
+	// Aggregate
+	GroupBy []string `json:"groupBy,omitempty"`
+
+	AggregateField string `json:"aggregateField,omitempty"`
+
+	AggregateFunction AggregateFunction `json:"aggregateFunction,omitempty"`
+
+	// Sort
+	SortField string `json:"sortField,omitempty"`
+
 	SortDirection string `json:"sortDirection,omitempty"`
 }
 
@@ -60,7 +79,11 @@ type DestinationNodeConfig struct {
 	Host     string `json:"host,omitempty"`
 	Port     int    `json:"port,omitempty"`
 	Database string `json:"database,omitempty"`
-	Table    string `json:"table,omitempty"`
+
+	Username string `json:"username,omitempty"`
+	Password string `json:"password,omitempty"`
+
+	Table string `json:"table,omitempty"`
 
 	FilePath string `json:"filePath,omitempty"`
 

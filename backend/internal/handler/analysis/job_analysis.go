@@ -157,7 +157,6 @@ func Get(c *gin.Context) {
 			userID,
 		)
 
-
 	if err != nil {
 		response.InternalServerError(
 			c,

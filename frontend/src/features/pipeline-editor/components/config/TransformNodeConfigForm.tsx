@@ -28,13 +28,24 @@ export default function TransformNodeConfigForm({
   };
 
   const handleOperationChange = (
-    operation: TransformOperation
-  ) => {
+  operation: TransformOperation
+) => {
+  if (operation === "aggregate") {
     onChange({
+      ...value,
       operation,
+      aggregateFunction:
+        value.aggregateFunction ?? "count",
     });
-  };
 
+    return;
+  }
+
+  onChange({
+    ...value,
+    operation,
+  });
+};
   return (
     <div className="space-y-4">
       <div>
@@ -117,29 +128,105 @@ export default function TransformNodeConfigForm({
         />
       )}
 
-      {value.operation ===
-        "aggregate" && (
-        <TextField
-          label="Group By Fields"
-          value={
-            value.groupBy?.join(", ") ?? ""
-          }
-          placeholder="Example: country, category"
-          onChange={(rawValue) => {
-            const groupBy = rawValue
-              .split(",")
-              .map((field) =>
-                field.trim()
-              )
-              .filter(Boolean);
+      {value.operation === "aggregate" && (
+  <>
+    <TextField
+      label="Group By Fields"
+      value={
+        value.groupBy?.join(", ") ?? ""
+      }
+      placeholder="Example: country"
+     onChange={(rawValue) => {
 
-            updateField(
-              "groupBy",
-              groupBy
-            );
-          }}
-        />
-      )}
+  const groupBy = rawValue
+    .split(",")
+    .map((field) => field.trim())
+    .filter(Boolean);
+
+  updateField(
+    "groupBy",
+    groupBy
+  );
+}}
+/>
+
+    <TextField
+      label="Aggregate Field"
+      value={
+        value.aggregateField ?? ""
+      }
+      placeholder="Example: salary"
+      onChange={(value) =>
+        updateField(
+          "aggregateField",
+          value
+        )
+      }
+    />
+
+    <div>
+      <label
+        className="mb-2 block text-sm font-semibold text-slate-700"
+      >
+        Aggregate Function
+      </label>
+
+      <select
+        value={
+          value.aggregateFunction ??
+          "count"
+        }
+        onChange={(event) =>
+          updateField(
+            "aggregateFunction",
+            event.target.value as
+              | "count"
+              | "sum"
+              | "avg"
+              | "min"
+              | "max"
+          )
+        }
+        className="
+          w-full
+          rounded-xl
+          border
+          border-slate-200
+          bg-white
+          px-3
+          py-2.5
+          text-sm
+          text-slate-900
+          outline-none
+          transition
+          focus:border-blue-400
+          focus:ring-4
+          focus:ring-blue-50
+        "
+      >
+        <option value="count">
+          Count
+        </option>
+
+        <option value="sum">
+          Sum
+        </option>
+
+        <option value="avg">
+          Average
+        </option>
+
+        <option value="min">
+          Minimum
+        </option>
+
+        <option value="max">
+          Maximum
+        </option>
+      </select>
+    </div>
+  </>
+)}
 
       {value.operation === "sort" && (
         <>

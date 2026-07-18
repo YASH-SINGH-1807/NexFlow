@@ -70,7 +70,10 @@ func (e *SourceExecutor) executePostgreSQL(
 		)
 	}
 
-	ctx.NodeData[nodeID] = result
+	ctx.SetNodeData(
+		nodeID,
+		result,
+	)
 
 	return rows.Err()
 }

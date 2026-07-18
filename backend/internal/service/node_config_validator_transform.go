@@ -21,8 +21,31 @@ func validateTransformConfig(
 
 	case model.TransformAggregate:
 
-		if len(cfg.GroupBy) == 0 {
+		// COUNT can work without an aggregate field.
+		if cfg.AggregateFunction != "count" &&
+			strings.TrimSpace(cfg.AggregateField) == "" {
 			return ErrInvalidNodeConfig
+		}
+
+		switch cfg.AggregateFunction {
+
+		case "count",
+			"sum",
+			"avg",
+			"min",
+			"max":
+			// valid
+
+		default:
+			return ErrInvalidNodeConfig
+		}
+
+		// GroupBy is optional.
+		// If provided, make sure field names are not empty.
+		for _, field := range cfg.GroupBy {
+			if strings.TrimSpace(field) == "" {
+				return ErrInvalidNodeConfig
+			}
 		}
 
 	case model.TransformSort:
